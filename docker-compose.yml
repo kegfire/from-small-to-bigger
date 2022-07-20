@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:  
+  web:
+    image: somewebapi:dev
+    depends_on:
+      - "redis_image"
+      - "mongo_image"
+    build:
+      context: .
+      dockerfile: SomeWebApi/Dockerfile
+    ports:
+      - "80"
+      - "443"
+    networks:
+      - some-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+
+  redis_image:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - some-network
+
+  mongo_image:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+    networks:
+      - some-network
+
+networks:
+  some-network:
+    external: true
